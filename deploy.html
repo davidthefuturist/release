@@ -5,24 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Three.js GLB Viewer</title>
   <style>
-    body {
-      margin: 0;
-      background: #eee;
-      overflow: hidden;
-    }
-    canvas {
-      display: block;
-    }
+    body { margin: 0; background: #eee; overflow: hidden; }
+    canvas { display: block; }
   </style>
 </head>
 <body>
-  <!-- Load from reliable jsDelivr CDN -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/examples/js/loaders/GLTFLoader.js"></script>
 
   <script>
-    console.log("THREE exists?", typeof THREE); // Debug
+    console.log("THREE exists?", typeof THREE); // should log "object"
+    console.log("OrbitControls?,", !!THREE.OrbitControls);
+    console.log("GLTFLoader?", !!THREE.GLTFLoader);
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -33,25 +28,17 @@
     document.body.appendChild(renderer.domElement);
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.update();
-
-    const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
-    scene.add(light);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.5));
 
     const loader = new THREE.GLTFLoader();
     loader.load(
       'https://github.com/davidthefuturist/release/raw/refs/heads/main/YA%20MORON.glb',
-      function (gltf) {
+      gltf => {
         console.log("✅ Model loaded");
-        gltf.scene.scale.set(1.5, 1.5, 1.5);
         scene.add(gltf.scene);
       },
-      function (xhr) {
-        console.log(`Loading: ${(xhr.loaded / xhr.total * 100).toFixed(1)}%`);
-      },
-      function (error) {
-        console.error("🚨 GLB Load error:", error);
-      }
+      xhr => console.log(`Loading ${(xhr.loaded / xhr.total * 100).toFixed(1)}%`),
+      err => console.error("🚨 GLB load error:", err)
     );
 
     function animate() {
